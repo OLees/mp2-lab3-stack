@@ -59,20 +59,61 @@ public:
 		return Size;
 	}
 
-	void push_front(T) {};
+	T& operator[] (size_t i)
+	{
+		return data[i];
+	}
 
-	void push_back(T) {};
 
-	void pop_front() {};
 
-	void pop_back() {};
+	void push_front(T elem)  // Вставка в начало
+	{
+		T* temp(data);
+		Resize(++Mem);
+		for (size_t i = 0; i < Mem - 1; i++)
+			data[i + 1] = temp.data[i];
+		data[0] = elem;
+		Size++;
+	};
 
-	bool empty() {};
+	void push_back(T elem) // Вставка в конец
+	{
+		Resize(++Mem);
+		data[Size + 1] = elem;
+		Size++;
+	};
 
-	bool full() {};
+	void pop_front() // Удалить из начала
+	{
+		T* temp(data);
+		delete[] data;
+		data = new T[Mem - 1];
+		for (size_t i = 1; i < Mem; i++)
+			data[i] = temp.data[i];
+		Size--;
+	};
 
-	
-	
+	void pop_back() //Удалить из конца
+	{
+		T* temp(data);
+		delete[] data;
+		data = new T[Mem - 1];
+		for (size_t i = 0; i < Mem-1; i++)
+			data[i] = temp.data[i];
+		Size--;
+	};
+
+	bool empty() 
+	{
+		return Size == 0;
+	};
+
+	bool full() 
+	{
+		return Size == Mem;
+	};
+
+
 };
 
 
@@ -82,35 +123,37 @@ public:
 
 template <class T>
 class Stack: public Vector <T>{
+private:
+	void push_front() {};
+	void pop_front() {};
 public:
-	size_t Size;
+	Stack() :Vector() {};
+	Stack(const int n) :Vector(n) {};
+	Stack(const Stack& s) :Vector(s) {};
+	~Stack() {};
+
 	T Top() 
 	{
-		return ;
+		return data[Size-1];
 	}
 
-	void push() 
+	void push(T elem) 
 	{
-
+		Vector<T>::push_back(elem);
 	}
 
-	void pop() 
+	void pop()
 	{
-
+		Vector<T>::pop_back();
 	}
 
 	bool IsEmpty() const
 	{
-		return (Top == 0);
+		return (Size == 0);
 	}
 
 	bool IsFull() const
 	{
-		return Top == (MemSize - 1);
-	}
-
-	void Put(const int Val)
-	{
-		Mem[++Top] = Val;
+		return Size == Mem;
 	}
 };
