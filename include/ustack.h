@@ -95,24 +95,47 @@ public:
 
 	void pop_back() //Удалить из конца
 	{
-		T* temp(data);
+		T* temp(data);		
 		delete[] data;
 		data = new T[Mem - 1];
 		for (size_t i = 0; i < Mem-1; i++)
-			data[i] = temp.data[i];
+			data[i] = temp[i];
 		Size--;
 	};
 
-	bool empty() 
+	int empty() 
 	{
 		return Size == 0;
 	};
 
-	bool full() 
+	int full() 
 	{
 		return Size == Mem;
 	};
 
+	int operator==(const Vector& v) const
+	{
+		int res = 1;
+		if (Size != v.Size)
+			res = 0;
+		else 
+		{
+			size_t max=Size;
+			if (max < v.Size)
+				max = v.Size;
+			for (size_t i = 0; i < max; i++)
+				if (data[i] != v.data[i]) {
+					res = 0;
+					break;
+				}
+		}
+		return res;
+	};
+
+	int operator!=(const Vector& v) const
+	{
+		return !(*this == v);
+	};
 
 };
 
@@ -134,7 +157,7 @@ public:
 
 	T Top() 
 	{
-		return data[Size-1];
+		return data[Size];
 	}
 
 	void push(T elem) 
@@ -147,13 +170,100 @@ public:
 		Vector<T>::pop_back();
 	}
 
-	bool IsEmpty() const
+	int IsEmpty() const
 	{
 		return (Size == 0);
 	}
 
-	bool IsFull() const
+	int IsFull() const
 	{
 		return Size == Mem;
 	}
+};
+
+
+
+////----------------------------------------------------////
+////-------------------------////-----------------------////
+
+
+template <class T>
+class Queue : public Vector <T> {
+private:
+	T* Start;
+	T* End;
+	void push_back() {};
+	void pop_front() {};
+	void push_front() {};
+	void pop_back() {};
+public:
+	Queue() :Vector()
+	{
+		Start = NULL;
+		End = NULL;
+	};
+
+	Queue(const int n) :Vector(n)
+	{
+		Start = data;
+		End = data + Size - 1;
+	};
+
+	Queue(const Queue& q) :Vector(s)
+	{
+		Start = q.Start;
+		End = q.End;
+	};
+
+	~Queue() {};
+
+	T front()
+	{
+		return *Start;
+	};
+
+	T back()
+	{
+		return *End;
+	};
+
+	void push(T elem)
+	{
+		if (full())
+			Resize(size_t(Mem * 1.5) + 1);
+		End++;
+		*End = elem;
+		Size++;
+	};
+
+	void pop(T elem)
+	{
+		if (empty())
+			throw "";
+		start++;
+		Size--;
+	};
+
+	void Resize(size_t s)
+	{
+		T* temp = new T[s];
+		for (size_t i = 0; i < Size; i++)
+			temp[i] = data[i];
+		for (size_t i = Size; i < Mem; i++)
+			temp[i] = 0;
+		delete[] data;
+		data = temp;
+		Mem = s;
+		Start = data;
+		End = data + Size - 1;
+	}
+	int IsEmpty()
+	{
+		return Size == 0;
+	};
+
+	int IsFull()
+	{
+		return ((Size == Mem) && (Start == data)) || (Start == End + 1);
+	};
 };
