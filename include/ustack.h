@@ -16,8 +16,10 @@ public:
 		Size = 0;
 	}
 
-	Vector(int s) {
-		Mem = 1.5 * s;
+	Vector(size_t s) {
+		if ((s < 0) || (s > MAX_SIZE))
+			throw "Negative or Too Big Size";
+		Mem = size_t(1.2 * s) + 1;
 		data = new T[Mem];
 		Size = s;
 		for (size_t i = 0; i < Mem; i++)
@@ -43,16 +45,14 @@ public:
 	}
 
 	void Resize(size_t s) {
-		T* temp = new T[s];
-		if(s > Mem)
-		for (size_t i = 0; i < Mem; i++)
-			temp[i] = data[i];
-		else
-			for (size_t i = 0; i < s; i++)
+		if ((s < Mem) || (s > MAX_SIZE))
+			throw "Unable to Resize";
+			T* temp = new T[s];
+			for (size_t i = 0; i < Mem; i++)
 				temp[i] = data[i];
-		Mem = s;
-		delete[] data;
-		data = temp;
+			Mem = s;
+			delete[] data;
+			data = temp;
 	}
 
 	size_t GetSize() {
@@ -61,46 +61,61 @@ public:
 
 	T& operator[] (size_t i)
 	{
-		return data[i];
+		if ((i > 0) && (i < MAX_SIZE))
+			return data[i];
+		else
+			throw "Negative or Too Big Index";
 	}
 
 
 
 	void push_front(T elem)  // Вставка в начало
 	{
-		T* temp(data);
-		Resize(++Mem);
-		for (size_t i = 0; i < Mem - 1; i++)
-			data[i + 1] = temp.data[i];
-		data[0] = elem;
-		Size++;
+		if ((Size + 1) > Mem)
+		{
+			Mem = size_t(1.2 * Mem) + 1;
+			Resize(Mem);
+			for (size_t i = Size; i >= 1; i--)
+				data[i] = data[i - 1];
+			data[0] = elem;
+			Size++;
+		}
+		else
+		{
+			for (size_t i = Size; i >= 1; i--)
+				data[i] = data[i - 1];
+			data[0] = elem;
+			Size++;
+		};
 	};
 
 	void push_back(T elem) // Вставка в конец
 	{
-		Resize(++Mem);
-		data[Size + 1] = elem;
-		Size++;
+		if (Size == MAX_SIZE) 
+			throw "Unable to push back";
+		if (Size+1 > Mem)
+		{
+			Mem = size_t(1.2 * Mem)+1;
+	 		Resize(Mem);
+		}
+		data[Size++]=elem;
 	};
 
 	void pop_front() // Удалить из начала
 	{
-		T* temp(data);
-		delete[] data;
-		data = new T[Mem - 1];
-		for (size_t i = 1; i < Mem; i++)
-			data[i] = temp.data[i];
-		Size--;
+		if (Size > 0)
+			for (size_t i = 0; i < Size - 1; i++)
+				data[i] = data[i + 1];
+		data[--Size] = 0;
+		else
+			throw "Unable to pop";
 	};
 
 	void pop_back() //Удалить из конца
 	{
-		T* temp(data);		
-		delete[] data;
-		data = new T[Mem - 1];
-		for (size_t i = 0; i < Mem-1; i++)
-			data[i] = temp[i];
-		Size--;
+		if (Size == 0)
+			throw "Unable to pop";
+		data[Size--] = 0;
 	};
 
 	int empty() 
@@ -111,6 +126,19 @@ public:
 	int full() 
 	{
 		return Size == Mem;
+	};
+
+	Vector& operator=(const Vector& v) const
+	{
+		size_t max = Size;
+		if (max < v.Size)
+			max = v.Size;
+		delete[] data;
+		data = new T[max];
+		for (size_t i = 0; i < v.Size; i++)
+			data[i] = v.data[i];
+		for (size_t i = v.Size; i < max; i++)
+			data[i] = 0;
 	};
 
 	int operator==(const Vector& v) const
@@ -157,7 +185,10 @@ public:
 
 	T Top() 
 	{
-		return data[Size];
+		if (Size >= 1)
+			return data[Size-1];
+		else
+			throw "Stack is empty";
 	}
 
 	void push(T elem) 
@@ -177,7 +208,7 @@ public:
 
 	int IsFull() const
 	{
-		return Size == Mem;
+		return Size == Mem-1;
 	}
 };
 
@@ -219,44 +250,67 @@ public:
 
 	T front()
 	{
-		return *Start;
+		if (Size == 0)
+			throw "Unable to take Start";
+		else
+			return *Start;
 	};
 
 	T back()
 	{
-		return *End;
+		if (Size == 0)
+			throw "Unable to take Start";
+		else
+			return *End;
 	};
 
 	void push(T elem)
 	{
-		if (full())
-			Resize(size_t(Mem * 1.5) + 1);
-		End++;
+		if (IsFull())
+			Resize(size_t(Mem * 1.2) + 1);
+		//End++;
+		//*End = elem;
+		//Size++;
+
+		if (End == data + Mem - 1)
+			End = data;
+		else
+			End++;
 		*End = elem;
 		Size++;
 	};
 
 	void pop(T elem)
 	{
-		if (empty())
-			throw "";
-		start++;
+		if (IsEmpty())
+			throw "Unable to pop";
+		if (Start == data + Mem - 1)
+			Start = data;
+		else
+			Start++;
 		Size--;
 	};
 
 	void Resize(size_t s)
 	{
 		T* temp = new T[s];
-		for (size_t i = 0; i < Size; i++)
-			temp[i] = data[i];
-		for (size_t i = Size; i < Mem; i++)
-			temp[i] = 0;
+		int k=0;
+		for (size_t i = (Start-data)/sizeof(T); i < Mem; i++){
+			temp[k] = data[i];
+			k++;
+			}
+		for (size_t i = 0; i < (Start-data)/sizeof(T); i++){
+			temp[k] = data[i];
+			k++;
+			}
 		delete[] data;
 		data = temp;
 		Mem = s;
 		Start = data;
 		End = data + Size - 1;
 	}
+	
+	
 	int IsEmpty()
 	{
 		return Size == 0;
