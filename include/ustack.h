@@ -59,15 +59,21 @@ public:
 		return Size;
 	}
 
-	T& operator[] (size_t i)
+	/*T& operator[] (size_t i)
 	{
 		if ((i > 0) && (i < MAX_SIZE))
 			return data[i];
 		else
 			throw "Negative or Too Big Index";
-	}
+	};
 
-
+	T operator[] (size_t i)
+	{
+		if ((i > 0) && (i < MAX_SIZE))
+			return data[i];
+		else
+			throw "Negative or Too Big Index";
+	}*/
 
 	void push_front(T elem)  // Вставка в начало
 	{
@@ -240,7 +246,7 @@ public:
 		End = data + Size - 1;
 	};
 
-	Queue(const Queue& q) :Vector(s)
+	Queue(const Queue& q) :Vector(q)
 	{
 		Start = q.Start;
 		End = q.End;
@@ -259,7 +265,7 @@ public:
 	T back()
 	{
 		if (Size == 0)
-			throw "Unable to take Start";
+			throw "Unable to take End";
 		else
 			return *End;
 	};
@@ -268,19 +274,15 @@ public:
 	{
 		if (IsFull())
 			Resize(size_t(Mem * 1.2) + 1);
-		//End++;
-		//*End = elem;
-		//Size++;
-
 		if (End == data + Mem - 1)
 			End = data;
 		else
 			End++;
 		*End = elem;
-		Size++;
+		Size++;	
 	};
 
-	void pop(T elem)
+	void pop()
 	{
 		if (IsEmpty())
 			throw "Unable to pop";
@@ -293,21 +295,24 @@ public:
 
 	void Resize(size_t s)
 	{
-		T* temp = new T[s];
-		int k=0;
-		for (size_t i = (Start-data)/sizeof(T); i < Mem; i++){
-			temp[k] = data[i];
-			k++;
+		if (s > Mem) {
+			T* temp = new T[s];
+			size_t k = 0;
+			for (size_t i = 0; i < Mem; i++) {
+				temp[k] = data[i];
+				k++;
 			}
-		for (size_t i = 0; i < (Start-data)/sizeof(T); i++){
-			temp[k] = data[i];
-			k++;
-			}
-		delete[] data;
-		data = temp;
-		Mem = s;
-		Start = data;
-		End = data + Size - 1;
+			/*for (size_t i = 0; i < (Start-data)/sizeof(T); i++){
+				temp[k] = data[i];
+				k++;
+				}*/
+			delete[] data;
+			data = temp;
+			Mem = s;
+			Start = data;
+			End = data + Size - 1;
+		}
+
 	}
 	
 	
@@ -320,4 +325,5 @@ public:
 	{
 		return ((Size == Mem) && (Start == data)) || (Start == End + 1);
 	};
+
 };
