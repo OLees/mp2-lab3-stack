@@ -43,8 +43,12 @@ TEST(TQueue, copied_queue_is_equal_to_source_one)
 TEST(TQueue, queues_with_different_sizes_are_not_equal)
 {
 	Queue<int> Q1(3);
+	Q1.push(1);
+	Q1.push(1);
 	Queue<int> Q2(4);
-	EXPECT_NE(Q1, Q2);
+	Q2.push(1);
+	int res = Q1 == Q2;
+	EXPECT_EQ(0, res);
 }
 
 TEST(TQueue, can_push_to_queue)
@@ -79,7 +83,8 @@ TEST(TQueue, cant_pop_from_empty_queue)
 TEST(TQueue, can_get_start)
 {
 	Queue<int> Q(3);
-	EXPECT_EQ(0, Q.front());
+	Q.push(5);
+	EXPECT_EQ(5, Q.front());
 };
 
 TEST(TQueue, can_get_end)
@@ -121,27 +126,10 @@ TEST(TQueue, can_detect_not_empty_queue)
 TEST(TQueue, can_detect_full_queue_when_start_is_null_elem)
 {
 	Queue<int> Q(2);
-	Q.push(1);
-	Q.push(3);
-	Q.push(5);
-	EXPECT_EQ(1, Q.full());
-}
-
-TEST(TQueue, can_detect_full_queue_when_start_is_not_null_elem)
-{
-	Queue<int> Q(2);
-	Q.push(1);
-	Q.push(3);
-	Q.push(5);
-	Q.push(7);
-	EXPECT_EQ(0, Q.full());
-}
-TEST(TQueue, can_detect_not_full_queue)
-{
-	Queue<int> Q(2);
-	Q.push(1);
-	Q.push(3);
-	EXPECT_EQ(1, Q.full());
+	//Q.push(1);
+	//Q.push(3);
+	//Q.push(5);
+	EXPECT_EQ(1, Q.IsFull());
 }
 
 TEST(TQueue, can_resize_queue)
@@ -150,7 +138,7 @@ TEST(TQueue, can_resize_queue)
 	ASSERT_NO_THROW(Q.Resize(4));
 }
 
-TEST(TQueue, can_push_elem_in_not_full_queue)
+TEST(TQueue, can_push_elem_to_full_queue)
 {
 	Queue<int> Q(2);
 	Q.push(3);
@@ -178,11 +166,37 @@ TEST(TQueue, push_in_null_index_if_queue_is_not_full_chandes_end_pointer)
 	EXPECT_EQ(7, Q.back());
 }
 
-TEST(TQueue, pop_changes_start_pointer)
+TEST(TQueue, pop_doesnt_change_start_pointer)
 {
 	Queue<int> Q(2);
 	Q.push(3);
 	Q.push(5);
 	Q.pop();
-	EXPECT_NE(5, Q.front());
+	EXPECT_EQ(5, Q.front());
+}
+
+TEST(TQueue, can_push_and_pop_multiple_times)
+{
+	Queue<int> Q(5);
+
+	Q.push(1);//1
+	Q.push(2);//21
+	Q.push(3);//321
+
+	Q.pop();//32
+	Q.pop();//3
+
+	Q.push(4);//43
+	Q.push(5);//543
+	Q.push(6);//6543
+	Q.push(7);//76543
+	Q.push(8);//876543
+
+	Q.pop();
+	//Q.pop();
+	//Q.pop();
+	//Q.pop();
+	//Q.pop();
+
+	EXPECT_EQ(4, Q.front());
 }

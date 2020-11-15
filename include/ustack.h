@@ -242,12 +242,16 @@ public:
 
 	Queue(const int n) :Vector(n)
 	{
+		delete[] data;
+		data = new T[n];
+		Size = 0;
 		Start = data;
 		End = data + Size - 1;
 	};
 
 	Queue(const Queue& q) :Vector(q)
 	{
+		Size = q.Size;
 		Start = q.Start;
 		End = q.End;
 	};
@@ -298,8 +302,9 @@ public:
 		if (s > Mem) {
 			T* temp = new T[s];
 			size_t k = 0;
-			for (size_t i = 0; i < Mem; i++) {
-				temp[k] = data[i];
+			for (size_t i = 0; i < Mem; i++)   
+			{  
+				temp[i] = data[i];
 				k++;
 			}
 			/*for (size_t i = 0; i < (Start-data)/sizeof(T); i++){
@@ -312,7 +317,6 @@ public:
 			Start = data;
 			End = data + Size - 1;
 		}
-
 	}
 	
 	
@@ -323,7 +327,26 @@ public:
 
 	int IsFull()
 	{
+		//return ((Size == Mem) || (Start == End + 1));
 		return ((Size == Mem) && (Start == data)) || (Start == End + 1);
+	};
+
+	int operator==(const Queue& q) const
+	{
+		int res = 1;
+		if (Size != q.Size)
+			res = 0;
+		for (int i = 0; i < Size; i++)
+			if (data[i] != q.data[i]) {
+				res = 0;
+				break;
+			}
+		return res;
+	};
+
+	int operator!=(const Queue& q) const
+	{
+		return !(*this == q);
 	};
 
 };
